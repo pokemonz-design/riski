@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Риски ВКС с налоговой</title>
+
+  <style>
+    :root {
+      --red: #cf4035;
+      --red-dark: #a92d26;
+      --red-soft: #f8e7e4;
+      --red-pale: #fff7f5;
+
+      --black: #111111;
+      --gray: #5f5f5f;
+      --border: #ead7d3;
+      --white: #ffffff;
+
+      --green: #287749;
+      --green-soft: #edf7f0;
+
+      --shadow: 0 12px 30px rgba(80, 32, 27, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 32px 20px;
+      color: var(--black);
+      background: var(--white);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .risk-module {
+      width: 100%;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .risk-module__rubric {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 22px;
+      padding: 8px 14px;
+      color: var(--white);
+      background: var(--red);
+      border-radius: 3px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .risk-module__rubric svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+    }
+
+    .risk-module__title {
+      max-width: 900px;
+      margin: 0 0 20px;
+      color: var(--black);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(38px, 6vw, 64px);
+      font-weight: 700;
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+    }
+
+    .risk-module__intro {
+      max-width: 850px;
+      margin: 0 0 36px;
+      color: var(--gray);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 22px;
+      line-height: 1.42;
+    }
+
+    .risk-module__intro strong {
+      color: var(--red);
+    }
+
+    .risk-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .risk-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-top: 6px solid var(--red);
+      border-radius: 4px;
+      box-shadow: var(--shadow);
+    }
+
+    .risk-card::after {
+      content: "";
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 145px;
+      height: 145px;
+      background: radial-gradient(
+        circle,
+        rgba(207, 64, 53, 0.12),
+        rgba(207, 64, 53, 0) 70%
+      );
+      pointer-events: none;
+    }
+
+    .risk-card__button {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      width: 100%;
+      padding: 26px;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .risk-card__button:hover {
+      background: var(--red-pale);
+    }
+
+    .risk-card__button:focus-visible {
+      outline: 4px solid rgba(207, 64, 53, 0.25);
+      outline-offset: -4px;
+    }
+
+    .risk-card__heading {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .risk-card__visual {
+      flex: 0 0 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 60px;
+      color: var(--red);
+      background: var(--red-soft);
+      border-radius: 50%;
+    }
+
+    .risk-card__visual svg {
+      width: 31px;
+      height: 31px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .risk-card__text {
+      min-width: 0;
+    }
+
+    .risk-card__number {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--red);
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .risk-card__title {
+      display: block;
+      color: var(--black);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 29px;
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -0.025em;
+    }
+
+    .risk-card__toggle {
+      position: relative;
+      flex: 0 0 42px;
+      width: 42px;
+      height: 42px;
+      margin-top: 7px;
+      color: var(--white);
+      background: var(--red);
+      border-radius: 50%;
+    }
+
+    .risk-card__toggle::before,
+    .risk-card__toggle::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 17px;
+      height: 2px;
+      background: currentColor;
+      transform: translate(-50%, -50%);
+      transition: transform 0.22s ease;
+    }
+
+    .risk-card__toggle::after {
+      transform: translate(-50%, -50%) rotate(90deg);
+    }
+
+    .risk-card.is-open .risk-card__toggle::after {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    .risk-card__content {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.28s ease;
+    }
+
+    .risk-card.is-open .risk-card__content {
+      grid-template-rows: 1fr;
+    }
+
+    .risk-card__content-inner {
+      overflow: hidden;
+    }
+
+    .risk-card__body {
+      padding: 0 26px 26px;
+    }
+
+    .risk-block {
+      position: relative;
+      padding: 22px 22px 22px 72px;
+      border-radius: 3px;
+    }
+
+    .risk-block + .risk-block {
+      margin-top: 15px;
+    }
+
+    .risk-block--unknown {
+      background: var(--red-soft);
+      border-left: 5px solid var(--red);
+    }
+
+    .risk-block--action {
+      background: var(--green-soft);
+      border-left: 5px solid var(--green);
+    }
+
+    .risk-block__icon {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      color: var(--white);
+      border-radius: 50%;
+    }
+
+    .risk-block--unknown .risk-block__icon {
+      background: var(--red);
+    }
+
+    .risk-block--action .risk-block__icon {
+      background: var(--green);
+    }
+
+    .risk-block__icon svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.1;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .risk-block__title {
+      margin: 0 0 12px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 23px;
+      line-height: 1.2;
+    }
+
+    .risk-block ul {
+      margin: 0;
+      padding-left: 21px;
+      font-size: 18px;
+      line-height: 1.52;
+    }
+
+    .risk-block li + li {
+      margin-top: 8px;
+    }
+
+    .risk-block p {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.55;
+    }
+
+    .risk-block strong {
+      color: var(--red-dark);
+    }
+
+    .risk-module__note {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      margin-top: 28px;
+      padding: 22px 24px;
+      color: var(--black);
+      background: var(--red-soft);
+      border-left: 6px solid var(--red);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 20px;
+      line-height: 1.45;
+    }
+
+    .risk-module__note svg {
+      flex: 0 0 28px;
+      width: 28px;
+      height: 28px;
+      color: var(--red);
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @media (max-width: 780px) {
+      body {
+        padding: 24px 13px;
+      }
+
+      .risk-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .risk-module__title {
+        font-size: 43px;
+      }
+
+      .risk-module__intro {
+        font-size: 20px;
+      }
+
+      .risk-card__button {
+        padding: 22px 18px;
+      }
+
+      .risk-card__body {
+        padding: 0 18px 20px;
+      }
+
+      .risk-card__heading {
+        gap: 13px;
+      }
+
+      .risk-card__visual {
+        flex-basis: 52px;
+        width: 52px;
+        height: 52px;
+      }
+
+      .risk-card__visual svg {
+        width: 27px;
+        height: 27px;
+      }
+
+      .risk-card__title {
+        font-size: 25px;
+      }
+
+      .risk-card__toggle {
+        flex-basis: 37px;
+        width: 37px;
+        height: 37px;
+      }
+
+      .risk-block {
+        padding: 20px 17px 20px 64px;
+      }
+
+      .risk-block__icon {
+        top: 18px;
+        left: 16px;
+      }
+    }
+
+    @media (max-width: 440px) {
+      .risk-module__title {
+        font-size: 36px;
+      }
+
+      .risk-module__intro {
+        font-size: 19px;
+      }
+
+      .risk-card__heading {
+        display: block;
+      }
+
+      .risk-card__visual {
+        margin-bottom: 13px;
+      }
+
+      .risk-card__title {
+        font-size: 24px;
+      }
+
+      .risk-block ul,
+      .risk-block p {
+        font-size: 17px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="risk-module">
+
+    <div class="risk-module__rubric">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 3 2.8 19h18.4L12 3Z"></path>
+        <path d="M12 9v4"></path>
+        <path d="M12 16.5h.01"></path>
+      </svg>
+
+      Риски нового порядка
+    </div>
+
+    <h1 class="risk-module__title">
+      Что может пойти не так при ВКС с налоговой
+    </h1>
+
+    <p class="risk-module__intro">
+      Откройте карточку, чтобы узнать,
+      <strong>что пока не урегулировано</strong>
+      и как компании снизить риск.
+    </p>
+
+    <section class="risk-grid">
+
+      <!-- РИСК 1 -->
+
+      <article class="risk-card">
+        <button
+          class="risk-card__button"
+          type="button"
+          aria-expanded="false"
+        >
+          <span class="risk-card__heading">
+
+            <span class="risk-card__visual">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7 3h7l4 4v14H7V3Z"></path>
+                <path d="M14 3v5h5"></path>
+                <path d="M10 13h5"></path>
+                <path d="M10 17h5"></path>
+                <path d="M4 7v13h10"></path>
+              </svg>
+            </span>
+
+            <span class="risk-card__text">
+              <span class="risk-card__number">
+                Риск 1
+              </span>
+
+              <span class="risk-card__title">
+                Передача доказательств
+              </span>
+            </span>
+
+          </span>
+
+          <span
+            class="risk-card__toggle"
+            aria-hidden="true"
+          ></span>
+        </button>
+
+        <div class="risk-card__content">
+          <div class="risk-card__content-inner">
+            <div class="risk-card__body">
+
+              <section class="risk-block risk-block--unknown">
+                <span class="risk-block__icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M9.5 9a2.7 2.7 0 0 1 5.1 1.2c0 2-2.6 2.1-2.6 4"></path>
+                    <path d="M12 18h.01"></path>
+                  </svg>
+                </span>
+
+                <h2 class="risk-block__title">
+                  Что неизвестно
+                </h2>
+
+                <ul>
+                  <li>
+                    Можно ли загружать документы непосредственно
+                    во время заседания.
+                  </li>
+
+                  <li>
+                    Достаточно ли показать оригинал документа
+                    через камеру.
+                  </li>
+
+                  <li>
+                    Как инспекция зафиксирует, что исследовала
+                    документ.
+                  </li>
+
+                  <li>
+                    Что произойдет, если файл не загрузится
+                    из-за технического сбоя.
+                  </li>
+                </ul>
+              </section>
+
+              <section class="risk-block risk-block--action">
+                <span class="risk-block__icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m5 12 4 4L19 6"></path>
+                  </svg>
+                </span>
+
+                <h2 class="risk-block__title">
+                  Что делать
+                </h2>
+
+                <p>
+                  <strong>
+                    Направьте ключевые доказательства заранее
+                  </strong>
+                  и получите подтверждение их приема. Во время
+                  ВКС обсуждайте уже представленные документы,
+                  а не знакомьте с ними инспекцию впервые.
+                </p>
+              </section>
+
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- РИСК 2 -->
+
+      <article class="risk-card">
+        <button
+          class="risk-card__button"
+          type="button"
+          aria-expanded="false"
+        >
+          <span class="risk-card__heading">
+
+            <span class="risk-card__visual">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="8"></circle>
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M12 4V2"></path>
+                <path d="M12 22v-2"></path>
+                <path d="M4 12H2"></path>
+                <path d="M22 12h-2"></path>
+              </svg>
+            </span>
+
+            <span class="risk-card__text">
+              <span class="risk-card__number">
+                Риск 2
+              </span>
+
+              <span class="risk-card__title">
+                Запись заседания
+              </span>
+            </span>
+
+          </span>
+
+          <span
+            class="risk-card__toggle"
+            aria-hidden="true"
+          ></span>
+        </button>
+
+        <div class="risk-card__content">
+          <div class="risk-card__content-inner">
+            <div class="risk-card__body">
+
+              <section class="risk-block risk-block--unknown">
+                <span class="risk-block__icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M9.5 9a2.7 2.7 0 0 1 5.1 1.2c0 2-2.6 2.1-2.6 4"></path>
+                    <path d="M12 18h.01"></path>
+                  </svg>
+                </span>
+
+                <h2 class="risk-block__title">
+                  Что неизвестно
+                </h2>
+
+                <ul>
+                  <li>
+                    Получит ли компания официальную запись
+                    видеоконференции.
+                  </li>
+
+                  <li>
+                    Вправе ли представитель компании вести
+                    собственную запись.
+                  </li>
+
+                  <li>
+                    Можно ли будет использовать ее при
+                    обжаловании решения инспекции.
+                  </li>
+                </ul>
+              </section>
+
+              <section class="risk-block risk-block--action">
+                <span class="risk-block__icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m5 12 4 4L19 6"></path>
+                  </svg>
+                </span>
+
+                <h2 class="risk-block__title">
+                  Что делать
+                </h2>
+
+                <p>
+                  Ведите собственную запись, если порядок ФНС
+                  этого не запрещает. Используйте ее
+                  <strong>
+                    для подготовки жалобы и восстановления
+                    хронологии событий
+                  </strong>.
+                </p>
+              </section>
+
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- РИСК 3 -->
+
+      <article class="risk-card">
+        <button
+          class="risk-card__button"
+          type="button"
+          aria-expanded="false"
+        >
+          <span class="risk-card__heading">
+
+            <span class="risk-card__visual">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 5h11v9H8l-4 4V5Z"></path>
+                <path d="M14 9h6v9l-3-3h-3"></path>
+              </svg>
+            </span>
+
+            <span class="risk-card__text">
+              <span class="risk-card__number">
+                Риск 3
+              </span>
+
+              <span class="risk-card__title">
+                Потеря личного контакта
+              </span>
+            </span>
+
+          </span>
+
+          <span
+            class="risk-card__toggle"
+            aria-hidden="true"
+          ></span>
+        </button>
+
+        <div class="risk-card__content">
+          <div class="risk-card__content-inner">
+            <div class="risk-card__body">
+
+              <section class="risk-block risk-block--unknown">
+                <span class="risk-block__icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M9.5 9a2.7 2.7 0 0 1 5.1 1.2c0 2-2.6 2.1-2.6 4"></path>
+                    <path d="M12 18h.01"></path>
+                  </svg>
+                </span>
+
+                <h2 class="risk-block__title">
+                  Что меняется
+                </h2>
+
+                <ul>
+                  <li>
+                    Сложнее оценить реакцию инспектора
+                    на аргументы компании.
+                  </li>
+
+                  <li>
+                    Меньше возможностей быстро перестроить
+                    позицию во время обсуждения.
+                  </li>
+
+                  <li>
+                    Дистанционное рассмотрение может стать
+                    более формальным.
+                  </li>
+                </ul>
+              </section>
+
+              <section class="risk-block risk-block--action">
+                <span class="risk-block__icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m5 12 4 4L19 6"></path>
+                  </svg>
+                </span>
+
+                <h2 class="risk-block__title">
+                  Что делать
+                </h2>
+
+                <p>
+                  Заранее подготовьте
+                  <strong>
+                    письменную позицию и сценарий заседания
+                  </strong>.
+                  Распределите роли между представителями
+                  компании и определите, кто отвечает
+                  на каждый возможный вопрос.
+                </p>
+              </section>
+
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- РИСК 4 -->
+
+      <article class="risk-card">
+        <button
+          class="risk-card__button"
+          type="button"
+          aria-expanded="false"
+        >
+          <span class="risk-card__heading">
+
+            <span class="risk-card__visual">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 8.5a13 13 0 0 1 16 0"></path>
+                <path d="M7 12a8.5 8.5 0 0 1 10 0"></path>
+                <path d="M10 15.5a3.7 3.7 0 0 1 4 0"></path>
+                <circle cx="12" cy="19" r="1"></circle>
+                <path d="m4 4 16 16"></path>
+              </svg>
+            </span>
+
+            <span class="risk-card__text">
+              <span class="risk-card__number">
+                Риск 4
+              </span>
+
+              <span class="risk-card__title">
+                Технические сбои
+              </span>
+            </span>
+
+          </span>
+
+          <span
+            class="risk-card__toggle"
+            aria-hidden="true"
+          ></span>
+        </button>
+
+        <div class="risk-card__content">
+          <div class="risk-card__content-inner">
+            <div class="risk-card__body">
+
+              <section class="risk-block risk-block--unknown">
+                <span class="risk-block__icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="9"></circle>
+                    <path d="M9.5 9a2.7 2.7 0 0 1 5.1 1.2c0 2-2.6 2.1-2.6 4"></path>
+                    <path d="M12 18h.01"></path>
+                  </svg>
+                </span>
+
+                <h2 class="risk-block__title">
+                  Что неизвестно
+                </h2>
+
+                <ul>
+                  <li>
+                    Считается ли заседание состоявшимся,
+                    если связь прервалась.
+                  </li>
+
+                  <li>
+                    Кто и каким образом фиксирует
+                    технический сбой.
+                  </li>
+
+                  <li>
+                    Могут ли проблемы с авторизацией
+                    приравнять к неявке.
+                  </li>
+                </ul>
+              </section>
+
+              <section class="risk-block risk-block--action">
+                <span class="risk-block__icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m5 12 4 4L19 6"></path>
+                  </svg>
+                </span>
+
+                <h2 class="risk-block__title">
+                  Что делать
+                </h2>
+
+                <p>
+                  Проверьте доступы и оборудование заранее.
+                  Подготовьте
+                  <strong>
+                    резервный интернет, дополнительное
+                    устройство и контакт инспекции
+                  </strong>
+                  для оперативной связи.
+                </p>
+              </section>
+
+            </div>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <aside class="risk-module__note">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"></circle>
+        <path d="M12 11v6"></path>
+        <path d="M12 7h.01"></path>
+      </svg>
+
+      <span>
+        Чем выше сумма возможных доначислений, тем меньше
+        ВКС стоит воспринимать как обычную видеовстречу.
+      </span>
+    </aside>
+
+  </main>
+
+  <script>
+    const riskCards = document.querySelectorAll(".risk-card");
+
+    riskCards.forEach((card) => {
+      const button = card.querySelector(".risk-card__button");
+
+      button.addEventListener("click", () => {
+        const isOpen = card.classList.contains("is-open");
+
+        card.classList.toggle("is-open");
+
+        button.setAttribute(
+          "aria-expanded",
+          String(!isOpen)
+        );
+      });
+    });
+  </script>
+</body>
+</html>
